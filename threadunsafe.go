@@ -35,6 +35,9 @@ import (
 
 type threadUnsafeSet map[interface{}]struct{}
 
+// threadUnsafeSet is the same as threadUnsafeSet, but exported.
+type ThreadUnsafeSet = threadUnsafeSet
+
 // An OrderedPair represents a 2-tuple of values.
 type OrderedPair struct {
 	First  interface{}
