@@ -1,3 +1,3 @@
 module github.com/AmitPGu/golang-set
 
-go 1.17
+go 1.12
