@@ -28,7 +28,7 @@ package mapset
 import "sync"
 
 type threadSafeSet struct {
-	s threadUnsafeSet
+	s ThreadUnsafeSet
 	sync.RWMutex
 }
 
@@ -87,7 +87,7 @@ func (set *threadSafeSet) Union(other Set) Set {
 	set.RLock()
 	o.RLock()
 
-	unsafeUnion := set.s.Union(&o.s).(*threadUnsafeSet)
+	unsafeUnion := set.s.Union(&o.s).(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeUnion}
 	set.RUnlock()
 	o.RUnlock()
@@ -100,7 +100,7 @@ func (set *threadSafeSet) Intersect(other Set) Set {
 	set.RLock()
 	o.RLock()
 
-	unsafeIntersection := set.s.Intersect(&o.s).(*threadUnsafeSet)
+	unsafeIntersection := set.s.Intersect(&o.s).(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeIntersection}
 	set.RUnlock()
 	o.RUnlock()
@@ -113,7 +113,7 @@ func (set *threadSafeSet) Difference(other Set) Set {
 	set.RLock()
 	o.RLock()
 
-	unsafeDifference := set.s.Difference(&o.s).(*threadUnsafeSet)
+	unsafeDifference := set.s.Difference(&o.s).(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeDifference}
 	set.RUnlock()
 	o.RUnlock()
@@ -126,7 +126,7 @@ func (set *threadSafeSet) SymmetricDifference(other Set) Set {
 	set.RLock()
 	o.RLock()
 
-	unsafeDifference := set.s.SymmetricDifference(&o.s).(*threadUnsafeSet)
+	unsafeDifference := set.s.SymmetricDifference(&o.s).(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeDifference}
 	set.RUnlock()
 	o.RUnlock()
@@ -211,7 +211,7 @@ func (set *threadSafeSet) Equal(other Set) bool {
 func (set *threadSafeSet) Clone() Set {
 	set.RLock()
 
-	unsafeClone := set.s.Clone().(*threadUnsafeSet)
+	unsafeClone := set.s.Clone().(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeClone}
 	set.RUnlock()
 	return ret
@@ -226,12 +226,12 @@ func (set *threadSafeSet) String() string {
 
 func (set *threadSafeSet) PowerSet() Set {
 	set.RLock()
-	unsafePowerSet := set.s.PowerSet().(*threadUnsafeSet)
+	unsafePowerSet := set.s.PowerSet().(*ThreadUnsafeSet)
 	set.RUnlock()
 
 	ret := &threadSafeSet{s: newThreadUnsafeSet()}
 	for subset := range unsafePowerSet.Iter() {
-		unsafeSubset := subset.(*threadUnsafeSet)
+		unsafeSubset := subset.(*ThreadUnsafeSet)
 		ret.Add(&threadSafeSet{s: *unsafeSubset})
 	}
 	return ret
@@ -249,7 +249,7 @@ func (set *threadSafeSet) CartesianProduct(other Set) Set {
 	set.RLock()
 	o.RLock()
 
-	unsafeCartProduct := set.s.CartesianProduct(&o.s).(*threadUnsafeSet)
+	unsafeCartProduct := set.s.CartesianProduct(&o.s).(*ThreadUnsafeSet)
 	ret := &threadSafeSet{s: *unsafeCartProduct}
 	set.RUnlock()
 	o.RUnlock()
