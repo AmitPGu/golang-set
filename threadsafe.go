@@ -29,7 +29,7 @@ import "sync"
 
 type threadSafeSet[T comparable] struct {
 	sync.RWMutex
-	uss *threadUnsafeSet[T]
+	uss *ThreadUnsafeSet[T]
 }
 
 func newThreadSafeSet[T comparable]() *threadSafeSet[T] {
@@ -136,7 +136,7 @@ func (t *threadSafeSet[T]) Union(other Set[T]) Set[T] {
 	t.RLock()
 	o.RLock()
 
-	unsafeUnion := t.uss.Union(o.uss).(*threadUnsafeSet[T])
+	unsafeUnion := t.uss.Union(o.uss).(*ThreadUnsafeSet[T])
 	ret := &threadSafeSet[T]{uss: unsafeUnion}
 	t.RUnlock()
 	o.RUnlock()
@@ -149,7 +149,7 @@ func (t *threadSafeSet[T]) Intersect(other Set[T]) Set[T] {
 	t.RLock()
 	o.RLock()
 
-	unsafeIntersection := t.uss.Intersect(o.uss).(*threadUnsafeSet[T])
+	unsafeIntersection := t.uss.Intersect(o.uss).(*ThreadUnsafeSet[T])
 	ret := &threadSafeSet[T]{uss: unsafeIntersection}
 	t.RUnlock()
 	o.RUnlock()
@@ -162,7 +162,7 @@ func (t *threadSafeSet[T]) Difference(other Set[T]) Set[T] {
 	t.RLock()
 	o.RLock()
 
-	unsafeDifference := t.uss.Difference(o.uss).(*threadUnsafeSet[T])
+	unsafeDifference := t.uss.Difference(o.uss).(*ThreadUnsafeSet[T])
 	ret := &threadSafeSet[T]{uss: unsafeDifference}
 	t.RUnlock()
 	o.RUnlock()
@@ -175,7 +175,7 @@ func (t *threadSafeSet[T]) SymmetricDifference(other Set[T]) Set[T] {
 	t.RLock()
 	o.RLock()
 
-	unsafeDifference := t.uss.SymmetricDifference(o.uss).(*threadUnsafeSet[T])
+	unsafeDifference := t.uss.SymmetricDifference(o.uss).(*ThreadUnsafeSet[T])
 	ret := &threadSafeSet[T]{uss: unsafeDifference}
 	t.RUnlock()
 	o.RUnlock()
@@ -266,7 +266,7 @@ func (t *threadSafeSet[T]) Equal(other Set[T]) bool {
 func (t *threadSafeSet[T]) Clone() Set[T] {
 	t.RLock()
 
-	unsafeClone := t.uss.Clone().(*threadUnsafeSet[T])
+	unsafeClone := t.uss.Clone().(*ThreadUnsafeSet[T])
 	ret := &threadSafeSet[T]{uss: unsafeClone}
 	t.RUnlock()
 	return ret

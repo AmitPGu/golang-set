@@ -31,28 +31,32 @@ import (
 	"strings"
 )
 
-type threadUnsafeSet[T comparable] map[T]struct{}
+type ThreadUnsafeSet[T comparable] map[T]struct{}
 
-// Assert concrete type:threadUnsafeSet adheres to Set interface.
-var _ Set[string] = (*threadUnsafeSet[string])(nil)
+// ThreadUnsafeSet is the same as ThreadUnsafeSet, but exported.
+//type ThreadUnsafeSet[T comparable] = ThreadUnsafeSet[T]
+//type ThreadUnsafeSet[T comparable] ThreadUnsafeSet[T]
 
-func newThreadUnsafeSet[T comparable]() *threadUnsafeSet[T] {
-	t := make(threadUnsafeSet[T])
+// Assert concrete type:ThreadUnsafeSet adheres to Set interface.
+var _ Set[string] = (*ThreadUnsafeSet[string])(nil)
+
+func newThreadUnsafeSet[T comparable]() *ThreadUnsafeSet[T] {
+	t := make(ThreadUnsafeSet[T])
 	return &t
 }
 
-func newThreadUnsafeSetWithSize[T comparable](cardinality int) *threadUnsafeSet[T] {
-	t := make(threadUnsafeSet[T], cardinality)
+func newThreadUnsafeSetWithSize[T comparable](cardinality int) *ThreadUnsafeSet[T] {
+	t := make(ThreadUnsafeSet[T], cardinality)
 	return &t
 }
 
-func (s threadUnsafeSet[T]) Add(v T) bool {
+func (s ThreadUnsafeSet[T]) Add(v T) bool {
 	prevLen := len(s)
 	s[v] = struct{}{}
 	return prevLen != len(s)
 }
 
-func (s *threadUnsafeSet[T]) Append(v ...T) int {
+func (s *ThreadUnsafeSet[T]) Append(v ...T) int {
 	prevLen := len(*s)
 	for _, val := range v {
 		(*s)[val] = struct{}{}
@@ -61,15 +65,15 @@ func (s *threadUnsafeSet[T]) Append(v ...T) int {
 }
 
 // private version of Add which doesn't return a value
-func (s *threadUnsafeSet[T]) add(v T) {
+func (s *ThreadUnsafeSet[T]) add(v T) {
 	(*s)[v] = struct{}{}
 }
 
-func (s *threadUnsafeSet[T]) Cardinality() int {
+func (s *ThreadUnsafeSet[T]) Cardinality() int {
 	return len(*s)
 }
 
-func (s *threadUnsafeSet[T]) Clear() {
+func (s *ThreadUnsafeSet[T]) Clear() {
 	// Constructions like this are optimised by compiler, and replaced by
 	// mapclear() function, defined in
 	// https://github.com/golang/go/blob/29bbca5c2c1ad41b2a9747890d183b6dd3a4ace4/src/runtime/map.go#L993)
@@ -78,7 +82,7 @@ func (s *threadUnsafeSet[T]) Clear() {
 	}
 }
 
-func (s *threadUnsafeSet[T]) Clone() Set[T] {
+func (s *ThreadUnsafeSet[T]) Clone() Set[T] {
 	clonedSet := newThreadUnsafeSetWithSize[T](s.Cardinality())
 	for elem := range *s {
 		clonedSet.add(elem)
@@ -86,7 +90,7 @@ func (s *threadUnsafeSet[T]) Clone() Set[T] {
 	return clonedSet
 }
 
-func (s *threadUnsafeSet[T]) Contains(v ...T) bool {
+func (s *ThreadUnsafeSet[T]) Contains(v ...T) bool {
 	for _, val := range v {
 		if _, ok := (*s)[val]; !ok {
 			return false
@@ -95,12 +99,12 @@ func (s *threadUnsafeSet[T]) Contains(v ...T) bool {
 	return true
 }
 
-func (s *threadUnsafeSet[T]) ContainsOne(v T) bool {
+func (s *ThreadUnsafeSet[T]) ContainsOne(v T) bool {
 	_, ok := (*s)[v]
 	return ok
 }
 
-func (s *threadUnsafeSet[T]) ContainsAny(v ...T) bool {
+func (s *ThreadUnsafeSet[T]) ContainsAny(v ...T) bool {
 	for _, val := range v {
 		if _, ok := (*s)[val]; ok {
 			return true
@@ -109,8 +113,8 @@ func (s *threadUnsafeSet[T]) ContainsAny(v ...T) bool {
 	return false
 }
 
-func (s *threadUnsafeSet[T]) ContainsAnyElement(other Set[T]) bool {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) ContainsAnyElement(other Set[T]) bool {
+	o := other.(*ThreadUnsafeSet[T])
 
 	// loop over smaller set
 	if s.Cardinality() < other.Cardinality() {
@@ -130,13 +134,13 @@ func (s *threadUnsafeSet[T]) ContainsAnyElement(other Set[T]) bool {
 }
 
 // private version of Contains for a single element v
-func (s *threadUnsafeSet[T]) contains(v T) (ok bool) {
+func (s *ThreadUnsafeSet[T]) contains(v T) (ok bool) {
 	_, ok = (*s)[v]
 	return ok
 }
 
-func (s *threadUnsafeSet[T]) Difference(other Set[T]) Set[T] {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) Difference(other Set[T]) Set[T] {
+	o := other.(*ThreadUnsafeSet[T])
 
 	diff := newThreadUnsafeSet[T]()
 	for elem := range *s {
@@ -147,7 +151,7 @@ func (s *threadUnsafeSet[T]) Difference(other Set[T]) Set[T] {
 	return diff
 }
 
-func (s *threadUnsafeSet[T]) Each(cb func(T) bool) {
+func (s *ThreadUnsafeSet[T]) Each(cb func(T) bool) {
 	for elem := range *s {
 		if cb(elem) {
 			break
@@ -155,8 +159,8 @@ func (s *threadUnsafeSet[T]) Each(cb func(T) bool) {
 	}
 }
 
-func (s *threadUnsafeSet[T]) Equal(other Set[T]) bool {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) Equal(other Set[T]) bool {
+	o := other.(*ThreadUnsafeSet[T])
 
 	if s.Cardinality() != other.Cardinality() {
 		return false
@@ -169,8 +173,8 @@ func (s *threadUnsafeSet[T]) Equal(other Set[T]) bool {
 	return true
 }
 
-func (s *threadUnsafeSet[T]) Intersect(other Set[T]) Set[T] {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) Intersect(other Set[T]) Set[T] {
+	o := other.(*ThreadUnsafeSet[T])
 
 	intersection := newThreadUnsafeSet[T]()
 	// loop over smaller set
@@ -190,20 +194,20 @@ func (s *threadUnsafeSet[T]) Intersect(other Set[T]) Set[T] {
 	return intersection
 }
 
-func (s *threadUnsafeSet[T]) IsEmpty() bool {
+func (s *ThreadUnsafeSet[T]) IsEmpty() bool {
 	return s.Cardinality() == 0
 }
 
-func (s *threadUnsafeSet[T]) IsProperSubset(other Set[T]) bool {
+func (s *ThreadUnsafeSet[T]) IsProperSubset(other Set[T]) bool {
 	return s.Cardinality() < other.Cardinality() && s.IsSubset(other)
 }
 
-func (s *threadUnsafeSet[T]) IsProperSuperset(other Set[T]) bool {
+func (s *ThreadUnsafeSet[T]) IsProperSuperset(other Set[T]) bool {
 	return s.Cardinality() > other.Cardinality() && s.IsSuperset(other)
 }
 
-func (s *threadUnsafeSet[T]) IsSubset(other Set[T]) bool {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) IsSubset(other Set[T]) bool {
+	o := other.(*ThreadUnsafeSet[T])
 	if s.Cardinality() > other.Cardinality() {
 		return false
 	}
@@ -215,11 +219,11 @@ func (s *threadUnsafeSet[T]) IsSubset(other Set[T]) bool {
 	return true
 }
 
-func (s *threadUnsafeSet[T]) IsSuperset(other Set[T]) bool {
+func (s *ThreadUnsafeSet[T]) IsSuperset(other Set[T]) bool {
 	return other.IsSubset(s)
 }
 
-func (s *threadUnsafeSet[T]) Iter() <-chan T {
+func (s *ThreadUnsafeSet[T]) Iter() <-chan T {
 	ch := make(chan T)
 	go func() {
 		for elem := range *s {
@@ -231,7 +235,7 @@ func (s *threadUnsafeSet[T]) Iter() <-chan T {
 	return ch
 }
 
-func (s *threadUnsafeSet[T]) Iterator() *Iterator[T] {
+func (s *ThreadUnsafeSet[T]) Iterator() *Iterator[T] {
 	iterator, ch, stopCh := newIterator[T]()
 
 	go func() {
@@ -251,7 +255,7 @@ func (s *threadUnsafeSet[T]) Iterator() *Iterator[T] {
 
 // Pop returns a popped item in case set is not empty, or nil-value of T
 // if set is already empty
-func (s *threadUnsafeSet[T]) Pop() (v T, ok bool) {
+func (s *ThreadUnsafeSet[T]) Pop() (v T, ok bool) {
 	for item := range *s {
 		delete(*s, item)
 		return item, true
@@ -259,17 +263,17 @@ func (s *threadUnsafeSet[T]) Pop() (v T, ok bool) {
 	return v, false
 }
 
-func (s threadUnsafeSet[T]) Remove(v T) {
+func (s ThreadUnsafeSet[T]) Remove(v T) {
 	delete(s, v)
 }
 
-func (s threadUnsafeSet[T]) RemoveAll(i ...T) {
+func (s ThreadUnsafeSet[T]) RemoveAll(i ...T) {
 	for _, elem := range i {
 		delete(s, elem)
 	}
 }
 
-func (s threadUnsafeSet[T]) String() string {
+func (s ThreadUnsafeSet[T]) String() string {
 	items := make([]string, 0, len(s))
 
 	for elem := range s {
@@ -278,8 +282,8 @@ func (s threadUnsafeSet[T]) String() string {
 	return fmt.Sprintf("Set{%s}", strings.Join(items, ", "))
 }
 
-func (s *threadUnsafeSet[T]) SymmetricDifference(other Set[T]) Set[T] {
-	o := other.(*threadUnsafeSet[T])
+func (s *ThreadUnsafeSet[T]) SymmetricDifference(other Set[T]) Set[T] {
+	o := other.(*ThreadUnsafeSet[T])
 
 	sd := newThreadUnsafeSet[T]()
 	for elem := range *s {
@@ -295,7 +299,7 @@ func (s *threadUnsafeSet[T]) SymmetricDifference(other Set[T]) Set[T] {
 	return sd
 }
 
-func (s threadUnsafeSet[T]) ToSlice() []T {
+func (s ThreadUnsafeSet[T]) ToSlice() []T {
 	keys := make([]T, 0, s.Cardinality())
 	for elem := range s {
 		keys = append(keys, elem)
@@ -304,14 +308,14 @@ func (s threadUnsafeSet[T]) ToSlice() []T {
 	return keys
 }
 
-func (s threadUnsafeSet[T]) Union(other Set[T]) Set[T] {
-	o := other.(*threadUnsafeSet[T])
+func (s ThreadUnsafeSet[T]) Union(other Set[T]) Set[T] {
+	o := other.(*ThreadUnsafeSet[T])
 
 	n := s.Cardinality()
 	if o.Cardinality() > n {
 		n = o.Cardinality()
 	}
-	unionedSet := make(threadUnsafeSet[T], n)
+	unionedSet := make(ThreadUnsafeSet[T], n)
 
 	for elem := range s {
 		unionedSet.add(elem)
@@ -323,7 +327,7 @@ func (s threadUnsafeSet[T]) Union(other Set[T]) Set[T] {
 }
 
 // MarshalJSON creates a JSON array from the set, it marshals all elements
-func (s threadUnsafeSet[T]) MarshalJSON() ([]byte, error) {
+func (s ThreadUnsafeSet[T]) MarshalJSON() ([]byte, error) {
 	items := make([]string, 0, s.Cardinality())
 
 	for elem := range s {
@@ -340,7 +344,7 @@ func (s threadUnsafeSet[T]) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON recreates a set from a JSON array, it only decodes
 // primitive types. Numbers are decoded as json.Number.
-func (s *threadUnsafeSet[T]) UnmarshalJSON(b []byte) error {
+func (s *ThreadUnsafeSet[T]) UnmarshalJSON(b []byte) error {
 	var i []T
 	err := json.Unmarshal(b, &i)
 	if err != nil {
